@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Amaral Tech — Landing page
 
-## Getting Started
+Site comercial da Amaral Tech (instalações elétricas, climatização, segurança eletrônica e infraestrutura de redes), focado em gerar pedidos de orçamento pelo WhatsApp.
 
-First, run the development server:
+Stack: Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 4 · lucide-react.
+
+## Rodando localmente
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # desenvolvimento em http://localhost:3000
+npm run build    # build de produção
+npm start        # servir o build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Antes de publicar — checklist
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Tudo fica em **`src/config/site.ts`**:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| O quê | Campo | Observação |
+| --- | --- | --- |
+| Número do WhatsApp | `WHATSAPP_NUMBER` | Configurado: `5519994521218`. Somente dígitos, formato internacional. |
+| Telefone exibido | `contact.phoneDisplay` | Configurado: `(19) 99452-1218`. |
+| Domínio do site | variável `NEXT_PUBLIC_SITE_URL` | Opcional. Na Vercel, sem ela, usa o domínio de produção do projeto automaticamente. |
+| Instagram | `social.instagram`, `social.instagramHandle` | Vazio = oculto. |
+| E-mail | `contact.email` | Vazio = oculto. |
+| Cidade / região (SEO local) | `location.city`, `location.state`, `location.serviceArea` | Entram no Schema.org e na meta description. |
+| Horário de atendimento | `businessHours` | Vazio = oculto. |
 
-## Learn More
+Campos vazios nunca são publicados — nem na página nem nos dados estruturados para o Google.
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy na Vercel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Envie o projeto para um repositório no GitHub (ou GitLab/Bitbucket).
+2. Em [vercel.com/new](https://vercel.com/new), importe o repositório. A Vercel detecta Next.js sozinha — não é preciso alterar comandos de build.
+3. Clique em **Deploy**.
+4. (Opcional) Com domínio próprio: adicione-o em *Settings → Domains* e crie a variável de ambiente `NEXT_PUBLIC_SITE_URL` com o endereço completo (ex.: `https://www.seudominio.com.br`). Faça um novo deploy para aplicar.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Cada `git push` na branch principal gera um novo deploy automaticamente.
 
-## Deploy on Vercel
+## Conteúdo
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**`src/config/content.ts`** concentra serviços, diferenciais, galeria, etapas do atendimento, FAQ, opções do formulário e avaliações.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Avaliações:** a lista `testimonials` começa vazia (a seção mostra um convite para avaliar). Adicione apenas avaliações reais, seguindo o exemplo comentado no arquivo.
+- **Mensagens do WhatsApp:** em `src/lib/whatsapp.ts` (`whatsappMessages`).
+
+## Imagens
+
+As fotos atuais são de banco de imagens ([Pexels](https://www.pexels.com/license/), uso comercial permitido) e estão marcadas como ilustrativas no site.
+
+Para trocar por fotos reais dos seus trabalhos:
+
+1. Coloque o arquivo em `public/images/...` (`.webp` ou `.jpg`, ~1600 px de largura).
+2. Atualize `src` e `alt` do item em `src/config/content.ts`.
+3. Na galeria, use `illustrative: false` para remover o selo "Imagem ilustrativa".
+
+Imagens fixas de seções: hero (`public/images/hero/`), sobre (`impacto/`), CTA final (`cta/`) e atendimento (`atendimento/`).
+
+## Logotipo
+
+- `public/brand/amaral-tech-logo.png` — logotipo original, sem alterações.
+- `public/brand/amaral-tech-symbol.png` — recorte exato do símbolo "AT" do original (sem redimensionar nem recolorir), usado no header e no favicon.
+
+O logotipo completo tem texto azul e cinza-escuro, então aparece sobre um cartão claro no rodapé e na imagem de compartilhamento. Se existir uma versão negativa (para fundo escuro), basta apontar `logo.full` para ela.
+
+## Estrutura
+
+```
+src/
+  app/            layout, página, SEO (sitemap, robots, manifest, ícones, OG)
+  config/         site.ts (dados comerciais) e content.ts (conteúdo)
+  lib/            whatsapp.ts (links/mensagens) e quote-form.ts (máscara/validação)
+  components/
+    layout/       Header, Footer, FloatingWhatsApp
+    sections/     Hero, Services, Differentials, Impact, Gallery, Audience,
+                  Process, Testimonials, Faq, FinalCta, Contact (+ ContactForm)
+    ui/           Button, Reveal, SectionHeading, Container, BrandMark, ícones
+    seo/          JsonLd (Schema.org ProfessionalService)
+```
